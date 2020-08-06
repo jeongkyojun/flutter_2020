@@ -62,48 +62,35 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin{
       body: Center(
         child:Column(
           children: <Widget>[
-          Stack(
-          children: <Widget>[
-            AnimatedBuilder(
-                animation:animationController,
-                builder : (context, child)
-                {
-                  return Container(
-                    height : 300 * animation.value,
-                    width : 200 * animation.value,
-                    color : Colors.blueAccent,
-                  );
-                }
-            ),
-            AnimatedBuilder(
-                animation:animationController,
-                builder : (context, child)
-                {
-                  return Container(
-                      height:100*animation.value,
-                      width:100*animation.value,
-                      color:Colors.red,
-                      child:Transform.translate(offset:textanimation.value,
-                        //child:Text('hello world!\n my name is kyojun\n how are you?',style:TextStyle(color:Colors.black,fontSize: 20)),
-                      )
-                  );
-                }
-              ),
-            ],
-          ),
-            RaisedButton(
-              onPressed:(){
-                if(open_status)
-                {
-                  animationController.reverse();
-                  open_status = false;
-                }
-                else{
-                  animationController.forward();
-                  open_status = true;
-                }
-                textanimationController.forward();
-              },
+            child: Stack(
+              //alignment: Alignment.center,
+              children: <Widget>[
+                Container(
+                  width:128,
+                  height:128,
+                  color:Colors.red,
+                ),
+                Container(
+                  width:64,
+                  height:128,
+                  color:Colors.orange,
+                ),
+                Container(
+                  width:64,
+                  height:64,
+                  color:Colors.yellow,
+                ),
+                Container(
+                  width:64,
+                  height:32,
+                  color:Colors.green,
+                ),
+                Container(
+                  width:32,
+                  height:32,
+                  color:Colors.blue,
+                ),
+              ],
             )
         ]
         )
