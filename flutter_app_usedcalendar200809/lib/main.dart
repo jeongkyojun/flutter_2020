@@ -3,7 +3,7 @@ import 'package:table_calendar/table_calendar.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 Map<DateTime, List> _holidays = {
-  DateTime(1, 1): ['New Year\'s Day'],
+  DateTime(2020, 1, 1): ['New Year\'s Day'],
   DateTime(6): ['Epiphany'],
   DateTime(2020, 2, 14): ['Valentine\'s Day'],
   DateTime(2020, 4, 21): ['New Year\'s Day'],
@@ -41,11 +41,30 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   Map<DateTime, List> _events;
-  List _selectedEvents;
+  List _selectedEvents,_selectedHolidays;
 
   // 애니메이션 컨트롤러와 캘린더 컨트롤러 선언
   AnimationController _animationController;
   CalendarController _calendarController;
+
+  AnimationController animationController2;
+  Animation<double> animation;
+
+  Map<DateTime, List> input_events()
+  {
+    Map<DateTime, List> events={
+      DateTime(2020, 3, 4): ["신입생 수강신청",],
+      DateTime(2020, 3, 5): ["신입생 수강신청",],
+      DateTime(2020, 3, 12): ["신입생 추가 수강신청",],
+      DateTime(2020, 3, 13): ["신입생 추가 수강신청"],
+    };
+    for(var i=0;i<10;i++) {
+      if (events[DateTime(2020,i+1,i+2)]==null)
+        events[DateTime(2020,i+1,i+2)] = [];
+      events[DateTime(2020,i+1,i+2)].add('events ${i+1}');
+    }
+    return events;
+  }
 
   @override
   void initState() {
@@ -53,13 +72,9 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     super.initState();
     final _selectedDay = DateTime.now();
     _calendarController = CalendarController();
-    _events = {
-      DateTime(2020, 3, 4): ["신입생 수강신청",],
-      DateTime(2020, 3, 5): ["신입생 수강신청",],
-      DateTime(2020, 3, 12): ["신입생 추가 수강신청",],
-      DateTime(2020, 3, 13): ["신입생 추가 수강신청"],
-    };
+    _events = input_events();
     _selectedEvents = _events[_selectedDay] ?? []; //널값인지 아닌지를 확인할 것!
+    _selectedHolidays = _holidays[_selectedDay]??[];
     _calendarController = CalendarController();
 
     _animationController = AnimationController(
@@ -67,8 +82,10 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
       duration: const Duration(milliseconds: 400),
     );
     _animationController.forward();
-  }
 
+    animationController2 = AnimationController(vsync:this, duration:Duration(milliseconds: 100));
+    animation = Tween(begin: 0.0, end: 1.0).animate(animationController2);
+  }
   @override
   void dispose() {
     // TODO: implement dispose
@@ -117,42 +134,24 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
           color: Color(0xff793cc2),
         ),
       ),
+
+
       body: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: <Widget>[
           //_buildTableCalendar(),
           _buildTableCalendarWithBuilders(),
           const SizedBox(height: 8.0),
-          _buildButtons(),
+          //_buildButtons(),
           const SizedBox(height: 8.0),
-          Expanded(child: _buildEventList()),
+          Expanded(child:
+              _buildEventList(),
+          ),
+          Expanded(child:
+              _buildHolidayList(),
+          ),
         ],
       ),
-    );
-  }
-
-  Widget _buildTableCalendar() {
-    return TableCalendar(
-      calendarController: _calendarController,
-      events: _events,
-      startingDayOfWeek: StartingDayOfWeek.monday,
-      calendarStyle: CalendarStyle(
-        selectedColor: Colors.deepOrange,
-        todayColor: Colors.brown,
-        outsideDaysVisible: false,
-      ),
-
-      headerStyle: HeaderStyle(
-        formatButtonTextStyle: TextStyle().copyWith(
-            color: Colors.white, fontSize: 15.0),
-        formatButtonDecoration: BoxDecoration(
-          color: Colors.deepOrange,
-          borderRadius: BorderRadius.circular(16.0),
-        ),
-      ),
-      onDaySelected: _onDaySelected,
-      onVisibleDaysChanged: _onVisibleDaysChanged,
-      onCalendarCreated: _onCalendarCreated,
     );
   }
     Widget _buildTableCalendarWithBuilders() {
@@ -251,12 +250,13 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
           shape:BoxShape.rectangle,
           color: _calendarController.isSelected(date)?Colors.brown[500]
               :_calendarController.isToday(date)?Colors.brown[300]:Colors.blue[400],
+
         ),
         width:16.0,
         height:16.0,
         child:Center(
           child:Text(
-            '{$events.length}',
+            '${events.length}',
             style:TextStyle().copyWith(
               color:Colors.white,
               fontSize:12.0,
@@ -272,43 +272,12 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
         color: Colors.blueGrey[800],
       );
     }
-
+    /*
     Widget _buildButtons() {
-      final dateTime = _events.keys.elementAt(_events.length - 2);
+      final dateTime = _events.keys.elementAt(_events.length - 1);
 
       return Column(
         children: <Widget>[
-          Row(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: <Widget>[
-              RaisedButton(
-                child: Text('Month'),
-                onPressed: () {
-                  setState(() {
-                    _calendarController.setCalendarFormat(CalendarFormat.month);
-                  });
-                },
-              ),
-              RaisedButton(
-                child: Text('2 weeks'),
-                onPressed: () {
-                  setState(() {
-                    _calendarController.setCalendarFormat(CalendarFormat.twoWeeks);
-                  });
-                },
-              ),
-              RaisedButton(
-                child: Text('Week'),
-                onPressed: () {
-                  setState(() {
-                    _calendarController.setCalendarFormat(CalendarFormat.week);
-                  });
-                },
-              ),
-            ],
-          ),
-          const SizedBox(height: 8.0),
           RaisedButton(
             child: Text('Set day ${dateTime.day}-${dateTime.month}-${dateTime.year}'),
             onPressed: () {
@@ -321,7 +290,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
         ],
       );
     }
-
+    */
     Widget _buildEventList() {
       return ListView(
         children: _selectedEvents
@@ -338,5 +307,23 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
         ))
             .toList(),
       );
+  }
+
+  Widget _buildHolidayList() {
+    return ListView(
+      children: _selectedHolidays
+          .map((event) => Container(
+        decoration: BoxDecoration(
+          border: Border.all(width: 0.8),
+          borderRadius: BorderRadius.circular(12.0),
+        ),
+        margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+        child: ListTile(
+          title: Text(event.toString()),
+          onTap: () => print('$event tapped!'),
+        ),
+      ))
+          .toList(),
+    );
   }
 }
